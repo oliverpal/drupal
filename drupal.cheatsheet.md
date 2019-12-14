@@ -8,7 +8,7 @@
 2. [Usage of composer](#usage-of-composer)
 2. [Local Setup for development](#local-dev-setup)
 
-<a name="installation-with-composer">### Installation with composer</a>
+### <a name="installation-with-composer">Installation with composer</a>
 
 Install Drupal latest core into my_drupal_project
 
@@ -16,11 +16,11 @@ Install Drupal latest core into my_drupal_project
 composer create-project drupal/recommended-project my_site_name_dir --no-interaction
 ```
 
-<a name="usage-of-composer">### Usage of composer</a>
+### <a name="usage-of-composer">Usage of composer</a>
 
 @todo
 
-<a name="local-dev-setup">### Local Setup for development</a>
+### <a name="local-dev-setup">Local Setup for development</a>
 
 For local development we definde local settings for a good dev workflow.
 These settings include:
