@@ -1,16 +1,20 @@
-# Drupal cheatsheet for development purposes
-
+# Drupal 8 cheatsheet
 
 ## Drupal 8
 
 ### Table of contents
 1. [Installation with composer](#installation-with-composer)
 2. [Usage of composer](#usage-of-composer)
-2. [Local Setup for development](#local-dev-setup)
+3. [Local Setup for development](#local-dev-setup)
+4. [Environment variables](#env-variables)
+5. [Drush](#drush)
 
 ### <a name="installation-with-composer">Installation with composer</a>
 
-Install Drupal latest core into my_drupal_project
+There are differents methods of installing drupal: direct download, with drush or with composer.
+But installation with composer is the recommended one and we will stick to that, because composer also manages all the dependencies for modules etc. Thanks to composer.json we will also have a consistent deployment process.
+
+Install Drupal latest core into my_site_name_dir
 
 ```
 composer create-project drupal/recommended-project my_site_name_dir --no-interaction
@@ -18,7 +22,29 @@ composer create-project drupal/recommended-project my_site_name_dir --no-interac
 
 ### <a name="usage-of-composer">Usage of composer</a>
 
-@todo
+Check if there are any updates
+
+```
+composer outdated 'drupal/*'
+```
+
+Install a module
+
+```
+composer require drupal/module_name
+```
+
+Update a module
+
+```
+composer update drupal/module_name --with-dependencies
+```
+
+Remove a module
+
+```
+composer remove drupal/module_name
+```
 
 ### <a name="local-dev-setup">Local Setup for development</a>
 
@@ -54,3 +80,41 @@ parameters:
     auto_reload: true
     cache:false
 ```
+### <a name="env-variables">Environment variables</a>
+
+It is recommended to leave sensitive access informations like for databases etc. also in environment variables outside the document root.
+So database settings we will set in .env on webserver.
+
+In composer root of drupal project (not web directory) on your remote webserver
+
+```
+cp .env.example .env
+```
+and write your database settings to the .env file.  This is also good practice on local dev server so all settings.php will have same definition.
+
+```
+//.env
+MYSQL_DATABASE=database_name
+MYSQL_HOSTNAME=localhost
+MYSQL_PASSWORD=db_pass
+MYSQL_PORT=3306
+MYSQL_USER=db_user
+
+//settings.php
+$databases['default']['default'] = [
+'database' => getenv('MYSQL_DATABASE'),
+  driver' => 'mysql',
+  host' => getenv('MYSQL_HOSTNAME'),
+  namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+  password' => getenv('MYSQL_PASSWORD'),
+  port' => getenv('MYSQL_PORT'),
+  prefix' => '',
+  username' => getenv('MYSQL_USER'),
+];
+```
+
+### <a name="drush">Drush</a>
+
+[Drush](https://www.drush.org/) is a very convenient command line interface (cli) for drupal.
+It comes automatically when you are installing drupal with composer.
+
