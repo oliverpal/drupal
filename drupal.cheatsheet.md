@@ -118,3 +118,39 @@ $databases['default']['default'] = [
 [Drush](https://www.drush.org/) is a very convenient command line interface (cli) for drupal.
 It comes automatically when you are installing drupal with composer.
 
+### Single Site Installation
+```
+// Check site status
+drush status
+
+// Cache clear/rebuild
+drush cr
+
+// Database update
+drush updb
+
+// Import configuration
+drush cim -y
+
+// Export configuration
+drush cex -y
+```
+
+### Multisite Installation
+```
+// Check site status
+drush -l mysite.dev status
+
+// Cache clear/rebuild
+drush -l mysite.dev cr
+
+// Database update
+drush -l mysite.dev updb
+
+// Import configuration
+drush -l mysite.dev cim -y
+
+// Export configuration
+drush -l mysite.dev cex -y
+```
+
