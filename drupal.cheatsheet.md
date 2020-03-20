@@ -75,10 +75,10 @@ $settings['container_yamls'][] = DRUPAL_ROOT . '/sites/development.services.yml'
 ```
 parameters:
   http.response.debug_cacheability_headers: true
-  twig:config
-    debug:true
+  twig.config:
+    debug: true
     auto_reload: true
-    cache:false
+    cache: false
 ```
 ### <a name="env-variables">Environment variables</a>
 
