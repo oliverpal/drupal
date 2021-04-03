@@ -1,0 +1,87 @@
+# This is a sample build configuration for PHP.
+# Check our guides at https://confluence.atlassian.com/x/e8YWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+
+image: tbode/drupal:8
+
+definitions:
+  caches:
+    vendors: vendor/
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: Building Assets
+          caches:
+            - node
+            - vendors
+          script:
+            - composer install
+          artifacts:
+            - web/**
+            - vendor/**
+      - step:
+          name: Deploy to Test-Server
+          deployment: test
+          script:
+            - rsync -rlthD --stats --exclude-from='rsync-exclude.txt' . $TEST_REMOTE_USER@$TEST_REMOTE_SERVER:$TEST_REMOTE_PATH
+            - ssh -A -tt $TEST_REMOTE_USER@$TEST_REMOTE_SERVER "cd $TEST_REMOTE_PATH; vendor/bin/drush cim -y; vendor/bin/drush updatedb -y; vendor/bin/drush cr"
+
+    stage:
+      - step:
+          name: Building Assets
+          caches:
+            - node
+            - vendors
+          script:
+            - composer install
+          artifacts:
+            - web/**
+            - vendor/**
+      - step:
+          name: Deploy to Stage-Server
+          deployment: staging
+          script:
+            - ssh-keyscan -p 2834 -t rsa $STAGE_REMOTE_SERVER >> ~/.ssh/known_hosts
+            - pipe: atlassian/rsync-deploy:0.4.0
+              variables:
+                USER: $STAGE_REMOTE_USER
+                SERVER: $STAGE_REMOTE_SERVER
+                REMOTE_PATH: $STAGE_REMOTE_PATH
+                LOCAL_PATH: "."
+                DEBUG: "true"
+                SSH_PORT: "1234"
+                EXTRA_ARGS: "-rlthD --stats --exclude-from=rsync-exclude.txt"
+                DELETE_FLAG: "false"
+            - ssh -A -tt -p 1234 $STAGE_REMOTE_USER@$STAGE_REMOTE_SERVER "cd $STAGE_REMOTE_PATH; vendor/bin/drush cim -y; vendor/bin/drush updatedb -y; vendor/bin/drush cr"
+
+    master:
+      - step:
+          name: Building Assets
+          caches:
+            - node
+            - vendors
+          script:
+            - composer install
+          artifacts:
+            - web/**
+            - vendor/**
+      - step:
+          name: Deploy to Production-Server
+          deployment: production
+          script:
+            - ssh-keyscan -p 1234 -t rsa $PROD_REMOTE_SERVER >> ~/.ssh/known_hosts
+            - pipe: atlassian/rsync-deploy:0.4.0
+              variables:
+                USER: $PROD_REMOTE_USER
+                SERVER: $PROD_REMOTE_SERVER
+                REMOTE_PATH: $PROD_REMOTE_PATH
+                LOCAL_PATH: "."
+                DEBUG: "true"
+                SSH_PORT: "1234"
+                EXTRA_ARGS: "-rlthD --stats --exclude-from=rsync-exclude.txt --exclude=web/.htaccess"
+                DELETE_FLAG: "false"
+            - ssh -A -tt -p 2834 $PROD_REMOTE_USER@$PROD_REMOTE_SERVER "cd $PROD_REMOTE_PATH; vendor/bin/drush cim -y; vendor/bin/drush updatedb -y; vendor/bin/drush cr"
